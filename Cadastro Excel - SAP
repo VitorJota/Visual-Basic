@@ -11,6 +11,7 @@ Sub Abre_OM()
     Dim ptsID As String
     Dim excelValue As String
     Dim z As String
+    Dim justificativa As String
     Dim i As Integer
     Dim j As Integer
     Dim lastRow As Long
@@ -48,19 +49,19 @@ Sub Abre_OM()
     
     ' Tenta abrir a OM
 
-    session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").Text = shtSCRIPT.Cells(5, 2).Value ' Número da OM
+    session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").Text = shtSCRIPT.Cells(5, 3).Value ' Número da OM
     session.findById("wnd[0]").sendVKey 0
     On Error GoTo OMNotFound
 
     ' Tenta preencher o Grupo
 
     session.findById("wnd[0]/mbar/menu[3]/menu[0]/menu[0]").Select ' Abre o menu
-    session.findById("wnd[1]/usr/ctxtCAUFVD-PLNNR").Text = shtSCRIPT.Cells(5, 4).Value ' Grupo
+    session.findById("wnd[1]/usr/ctxtCAUFVD-PLNNR").Text = shtSCRIPT.Cells(5, 5).Value ' Grupo
     On Error GoTo GroupNotFound
     
     ' Tenta preencher a Lista do Grupo
     
-    session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").Text = shtSCRIPT.Cells(5, 6).Value ' Lista do grupo
+    session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").Text = shtSCRIPT.Cells(5, 8).Value ' Lista do grupo
     session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").SetFocus
     session.findById("wnd[1]/tbar[0]/btn[0]").press
     On Error GoTo GroupNotFound
@@ -91,17 +92,22 @@ Sub Abre_OM()
     
     ' Comparar e marcar no SAP
     
-    If shtSCRIPT.Cells(8, 2).Text = "Não" Then ' caso seja PTS000
-    
+    'coloco justificativa
+    If shtSCRIPT.Cells(8, 3).Text = "Não" Then ' caso seja PTS000
+        
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/chkWA_TABLECTRL_0910-ACTIV[0,0]").Selected = True
         'Inserir o código da justificativa de não ter PTS
-        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = shtSCRIPT.Cells(11, 2).Value
+        justificativa = InputBox("Digite a justificativa para a Ordem de Manutenção não ter necessidade de PTS.")
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = justificativa
+        'session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = shtSCRIPT.Cells(11, 2).Value
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").SetFocus
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").caretPosition = 14
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
-        session.findById("wnd[1]/usr/btnBUTTON_2").press
+        'session.findById("wnd[1]/usr/btnBUTTON_2").press
         session.findById("wnd[0]/tbar[0]/btn[11]").press
         
+        
+        'rodar a terceira parte aqui dentro
         GoTo PularPTS000
     End If
     
@@ -145,11 +151,9 @@ PularPTS000:
     session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,1]").SetFocus
     session.findById("wnd[1]/tbar[0]/btn[0]").press
     session.findById("wnd[0]/tbar[0]/btn[11]").press
-
-    
     
     '--------------------------------------------------------------------------
-    
+  
     
     Exit Sub
 
@@ -196,3 +200,5 @@ Sub Limpar_SAP(campo As String)
             End If
     End Select
 End Sub
+
+
