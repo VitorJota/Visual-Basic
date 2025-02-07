@@ -1,10 +1,11 @@
- 'variaveis publicas
+'variaveis publicas
 
    Option Explicit
  
     Public Appl, SapGuiAuto, Connection, session, WScript 'Application, SapGuiAuto, Connection, session, WScript
 
 Sub Abre_OM()
+    
     Dim UltimaLinha As Integer
     Dim shtSCRIPT As Worksheet
     Dim MatchFound As Boolean
@@ -15,11 +16,19 @@ Sub Abre_OM()
     Dim i As Integer
     Dim j As Integer
     Dim lastRow As Long
+    
+    Dim NumOM As String
+    Dim Grupo As String
+    Dim ListGp As String
+    Dim PTS As String
 
     
+    NumOM = shtSCRIPT.Cells(5, 3).Value
+    
+    
     Set shtSCRIPT = ThisWorkbook.Sheets("parte_3") 'nome da aba para esse código
-    'UltimaLinha = shtSCRIPT.Cells(30, 5).Value 'contagem de OM's
     UltimaLinha = shtSCRIPT.Cells(shtSCRIPT.Rows.Count, 2).End(xlUp).Row - 1
+    
     ' Conectar ao SAP
     If Not IsObject(Appl) Then
         Set SapGuiAuto = GetObject("SAPGUI")
@@ -43,37 +52,39 @@ Sub Abre_OM()
     ' #################################
     ' #PARTE 1 - ABRIR OM
     ' #################################
+    
     session.findById("wnd[0]").maximize
     session.findById("wnd[0]/tbar[0]/okcd").Text = "/niw32"
     session.findById("wnd[0]").sendVKey 0
     
     ' Tenta abrir a OM
 
-    session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").Text = shtSCRIPT.Cells(5, 3).Value ' Número da OM
+    session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").Text = NumOM ' Número da OM
     session.findById("wnd[0]").sendVKey 0
     On Error GoTo OMNotFound
 
     ' Tenta preencher o Grupo
 
     session.findById("wnd[0]/mbar/menu[3]/menu[0]/menu[0]").Select ' Abre o menu
-    session.findById("wnd[1]/usr/ctxtCAUFVD-PLNNR").Text = shtSCRIPT.Cells(5, 5).Value ' Grupo//alterar
+    session.findById("wnd[1]/usr/ctxtCAUFVD-PLNNR").Text = shtSCRIPT.Cells(8, 3).Value ' Grupo//alterar
     On Error GoTo GroupNotFound
     
     ' Tenta preencher a Lista do Grupo
     
-    session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").Text = shtSCRIPT.Cells(5, 8).Value ' Lista do grupo
+    session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").Text = shtSCRIPT.Cells(8, 5).Value ' Lista do grupo
     session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").SetFocus
     session.findById("wnd[1]/tbar[0]/btn[0]").press
-    On Error GoTo GroupNotFound '?possiveis erros de lista
+    On Error GoTo GroupNotFound '
     
     session.findById("wnd[2]/tbar[0]/btn[0]").press
 
     On Error GoTo 0
     
     ' #################################
-    ' #PARTE 2 - EDITAR PTS
+    ' #PARTE 2 - EDITAR PTS ---
     ' #################################
-    
+        
+    ' Abre ampliação>edição
     session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK").Select
     session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_MODE_ICON").press
     session.findById("wnd[1]/tbar[0]/btn[6]").press
@@ -88,12 +99,11 @@ Sub Abre_OM()
         ' Inserir o código da justificativa de não ter PTS
         justificativa = InputBox("Digite a justificativa para a Ordem de Manutenção não ter necessidade de PTS.")
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = justificativa
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/cntlCC_TEXTBOX_0910/shellcont/shell").Text = shtSCRIPT.Cells(11, 3).Value
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").SetFocus
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").caretPosition = 14
-        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
-        session.findById("wnd[0]/tbar[0]/btn[11]").press
-        
-        GoTo PularPTS000
+           
+        GoTo PularPTS000 ' resolver esse pular
     End If
     
     ' Parte do código quando precisa de marcar as PTS
@@ -105,48 +115,57 @@ Sub Abre_OM()
                 
                 ' Maximize a janela do SAP
                 session.findById("wnd[0]").maximize
-                        
                 ' Obtenha o valor do campo no SAP e salve em uma string
                 ptsID = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/txtWA_TABLECTRL_0910-PTSID[1,0]").Text
-                ' seleciona o valor
+                ' Seleciona o valor
                 session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/chkWA_TABLECTRL_0910-ACTIV[0,0]").Selected = True
                 MatchFound = False
+                
                 GoTo Pular
-                    
+                
                 End If
-                'pula linha
+                
                 session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910").verticalScrollbar.Position = j
-                'z = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/txtWA_TABLECTRL_0910-PTSID[1,0]").Text
+                
             Next j
 Pular:
-            'msg box
             session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910").verticalScrollbar.Position = 0
        
        Next i
        
-       
-       
-       
-    ' Adicionar Justificativa
-    justificativa = InputBox("Digite a justificativa para a Ordem de Manutenção não ter necessidade de PTS.")
-    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = justificativa
-    
     ' Adicionar Observação
-              
+    
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/cntlCC_TEXTBOX_0910/shellcont/shell").Text = shtSCRIPT.Cells(11, 3).Value
             
-              
+    ' #################################
+    ' #PARTE 3 - EDITAR STATUS
+    ' #################################
+                      
 PularPTS000:
-
-    session.findById("wnd[0]/tbar[1]/btn[25]").press
-    session.findById("wnd[0]").sendVKey 0
-    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/subSUB_KOPF:SAPLCOIH:1102/btn%#AUTOTEXT001").press
-    session.findById("wnd[1]/usr/tblSAPLBSVATC_EO").verticalScrollbar.Position = 3
-    session.findById("wnd[1]/usr/tblSAPLBSVATC_EO").verticalScrollbar.Position = 6
-    session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,2]").Selected = False
-    session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,1]").Selected = True
-    session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,1]").SetFocus
-    session.findById("wnd[1]/tbar[0]/btn[0]").press
+    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
     session.findById("wnd[0]/tbar[0]/btn[11]").press
+    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
+    session.findById("wnd[1]/usr/btnBUTTON_2").press
+    session.findById("wnd[0]/tbar[0]/btn[11]").press 'Botão de salvar
+    
+    session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").Text = shtSCRIPT.Cells(5, 3).Value ' Número da OM
+    session.findById("wnd[0]").sendVKey 0
+    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK").Select
+    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_MODE_ICON").press
+    session.findById("wnd[1]/tbar[0]/btn[6]").press
+    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/chkWA_TABLECTRL_0910-ACTIV[0,0]").SetFocus
+    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/subSUB_KOPF:SAPLCOIH:1102/btn%#AUTOTEXT001").press
+    session.findById("wnd[1]/usr/tblSAPLBSVATC_E/radJ_STMAINT-ANWS[0,1]").Selected = True
+    session.findById("wnd[1]/usr/tblSAPLBSVATC_E/radJ_STMAINT-ANWS[0,1]").SetFocus
+    
+    
+    'Seleciona Status Secundário de acordo com o que o usuário marcar na planilha do Excel
+    
+    session.findById("wnd[1]/usr/tblSAPLBSVATC_EO").verticalScrollbar.Position = shtSCRIPT.Cells(27, 6).Value 'Posição do scroll do mouse
+    session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = True 'Sempre o primeiro da lista, muda os
+    session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").SetFocus
+    session.findById("wnd[1]/tbar[0]/btn[0]").press
+    session.findById("wnd[0]/tbar[0]/btn[11]").press 'Botão de salvar
     
     '--------------------------------------------------------------------------
   
