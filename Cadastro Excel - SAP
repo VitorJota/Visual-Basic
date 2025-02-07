@@ -18,8 +18,8 @@ Sub Abre_OM()
 
     
     Set shtSCRIPT = ThisWorkbook.Sheets("parte_3") 'nome da aba para esse código
-    UltimaLinha = shtSCRIPT.Cells(1, 6).Value '? Definir o valor para última linha
-    
+    'UltimaLinha = shtSCRIPT.Cells(30, 5).Value 'contagem de OM's
+    UltimaLinha = shtSCRIPT.Cells(shtSCRIPT.Rows.Count, 2).End(xlUp).Row - 1
     ' Conectar ao SAP
     If Not IsObject(Appl) Then
         Set SapGuiAuto = GetObject("SAPGUI")
@@ -40,9 +40,9 @@ Sub Abre_OM()
     End If
     On Error Resume Next
     
-     '#################################
-    '#PARTE 1 - ABRIR OM
-    '#################################
+    ' #################################
+    ' #PARTE 1 - ABRIR OM
+    ' #################################
     session.findById("wnd[0]").maximize
     session.findById("wnd[0]/tbar[0]/okcd").Text = "/niw32"
     session.findById("wnd[0]").sendVKey 0
@@ -56,7 +56,7 @@ Sub Abre_OM()
     ' Tenta preencher o Grupo
 
     session.findById("wnd[0]/mbar/menu[3]/menu[0]/menu[0]").Select ' Abre o menu
-    session.findById("wnd[1]/usr/ctxtCAUFVD-PLNNR").Text = shtSCRIPT.Cells(5, 5).Value ' Grupo
+    session.findById("wnd[1]/usr/ctxtCAUFVD-PLNNR").Text = shtSCRIPT.Cells(5, 5).Value ' Grupo//alterar
     On Error GoTo GroupNotFound
     
     ' Tenta preencher a Lista do Grupo
@@ -64,26 +64,15 @@ Sub Abre_OM()
     session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").Text = shtSCRIPT.Cells(5, 8).Value ' Lista do grupo
     session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").SetFocus
     session.findById("wnd[1]/tbar[0]/btn[0]").press
-    On Error GoTo GroupNotFound
-    
-    
-    'session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").caretPosition = 1
-    'session.findById("wnd[1]/tbar[0]/btn[0]").press
-    
-    
-    'If session.findById("wnd[2]/usr/txtMESSTXT2").Text = "suportadas para suboperações" Or session.findById("wnd[0]/sbar").DoubleClick.Text = "Plano de trabalho não foi selecionado" Then
-        'GoTo ListNotFound
-    'End If
+    On Error GoTo GroupNotFound '?possiveis erros de lista
     
     session.findById("wnd[2]/tbar[0]/btn[0]").press
 
     On Error GoTo 0
     
-    '--------------------------------------------------------------------------
-    
-    '#################################
-    '#PARTE 2 - EDITAR PTS
-    '#################################
+    ' #################################
+    ' #PARTE 2 - EDITAR PTS
+    ' #################################
     
     session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK").Select
     session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_MODE_ICON").press
@@ -92,41 +81,36 @@ Sub Abre_OM()
     
     ' Comparar e marcar no SAP
     
-    'coloco justificativa
-    If shtSCRIPT.Cells(8, 3).Text = "Não" Then ' caso seja PTS000
+    ' Selecionar o PTS000 - Adicionar "Justificativa"
+    If shtSCRIPT.Cells(8, 3).Text = "Não" Then ' Caso seja PTS000
         
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/chkWA_TABLECTRL_0910-ACTIV[0,0]").Selected = True
-        'Inserir o código da justificativa de não ter PTS
+        ' Inserir o código da justificativa de não ter PTS
         justificativa = InputBox("Digite a justificativa para a Ordem de Manutenção não ter necessidade de PTS.")
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = justificativa
-        'session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = shtSCRIPT.Cells(11, 2).Value
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").SetFocus
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").caretPosition = 14
         session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
-        'session.findById("wnd[1]/usr/btnBUTTON_2").press
         session.findById("wnd[0]/tbar[0]/btn[11]").press
         
-        
-        'rodar a terceira parte aqui dentro
         GoTo PularPTS000
     End If
     
-    'Parte do código quando precisa de marcar as PTS
-
-    For i = 1 To UltimaLinha
+    ' Parte do código quando precisa de marcar as PTS
+    
+    For i = 1 To 20
         For j = 1 To 20
         
-            If shtSCRIPT.Cells(i + 7, 6).Text = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/txtWA_TABLECTRL_0910-PTSID[1,0]").Text Then
+            If shtSCRIPT.Cells(i + 7, 8).Text = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/txtWA_TABLECTRL_0910-PTSID[1,0]").Text Then
                 
                 ' Maximize a janela do SAP
                 session.findById("wnd[0]").maximize
                         
                 ' Obtenha o valor do campo no SAP e salve em uma string
                 ptsID = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/txtWA_TABLECTRL_0910-PTSID[1,0]").Text
+                ' seleciona o valor
                 session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/chkWA_TABLECTRL_0910-ACTIV[0,0]").Selected = True
-                
                 MatchFound = False
-                'if para caso seja pts000 --> If shtSCRIPT.
                 GoTo Pular
                     
                 End If
@@ -137,7 +121,19 @@ Sub Abre_OM()
 Pular:
             'msg box
             session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910").verticalScrollbar.Position = 0
+       
        Next i
+       
+       
+       
+       
+    ' Adicionar Justificativa
+    justificativa = InputBox("Digite a justificativa para a Ordem de Manutenção não ter necessidade de PTS.")
+    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = justificativa
+    
+    ' Adicionar Observação
+              
+            
               
 PularPTS000:
 
@@ -173,13 +169,19 @@ ListNotFound:
     ' Captura o erro de Lista do Grupo e exibe no Excel
     Call Limpar_SAP("Lista")
     MsgBox "Erro: A Lista do Grupo não foi encontrada no SAP. Verifique os dados e tente novamente.", vbExclamation, "Erro de Lista do Grupo"
+    
     Exit Sub
+    
 End Sub
 
 ' Sub-rotina para limpar apenas o campo específico no SAP
+
 Sub Limpar_SAP(campo As String)
+    
     On Error Resume Next
+    
     Select Case campo
+        
         Case "OM"
             ' Limpa o campo OM
             If session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR", False) Is Nothing = False Then
@@ -198,7 +200,7 @@ Sub Limpar_SAP(campo As String)
                 session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").Text = ""
                 session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").SetFocus
             End If
+    
     End Select
+
 End Sub
-
-
