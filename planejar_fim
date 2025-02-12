@@ -1,11 +1,10 @@
- 'variaveis publicas
-
+' VAR PUBLI
    Option Explicit
  
     Public Appl, SapGuiAuto, Connection, session, WScript 'Application, SapGuiAuto, Connection, session, WScript
 
 Sub script_planOM()
-    
+
     Dim UltimaLinha As Integer
     Dim shtSCRIPT As Worksheet
     Dim MatchFound As Boolean
@@ -17,7 +16,7 @@ Sub script_planOM()
     Dim j As Integer
     Dim lastRow As Long
     
-    Set shtSCRIPT = ThisWorkbook.Sheets("parte_3") 'nome da aba para esse código
+    Set shtSCRIPT = ThisWorkbook.Sheets("SCRIPT") 'nome da aba para esse código
     UltimaLinha = shtSCRIPT.Cells(shtSCRIPT.Rows.Count, 2).End(xlUp).Row - 1
 
     ' Conectar ao SAP
@@ -39,7 +38,7 @@ Sub script_planOM()
        
     ' #################################
     ' #PARTE 1 - ABRIR OM
-    ' #################################
+    ' ################################
     session.findById("wnd[0]").maximize
     session.findById("wnd[0]/tbar[0]/okcd").Text = "/niw32"
     session.findById("wnd[0]").sendVKey 0
@@ -152,24 +151,19 @@ PularPTS000:
     session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").SetFocus
     session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = True
     session.findById("wnd[1]/tbar[0]/btn[0]").press
-    
+        
     session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
-    session.findById("wnd[1]/usr/btnBUTTON_2").press
-    session.findById("wnd[0]/tbar[0]/btn[11]").press 'confirma alteração
+    session.findById("wnd[1]/usr/btnBUTTON_2").press 'botão de confirmar alteração
     
     session.findById("wnd[0]/tbar[1]/btn[25]").press
-    session.findById("wnd[0]").sendVKey 0
-    session.findById("wnd[0]/tbar[0]/btn[11]").press
-    session.findById("wnd[0]/tbar[0]/btn[11]").press
-    session.findById("wnd[0]/tbar[0]/btn[11]").press
-    session.findById("wnd[0]/tbar[0]/btn[11]").press
-    session.findById("wnd[0]/tbar[0]/btn[11]").press 'bandeira verde
-   
-    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/ctxtWA_SCREEN_0910-ARBPL_EMIT").caretPosition = 8
-    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
-    session.findById("wnd[1]/usr/btnBUTTON_2").press 'salva o script
-        
+    session.findById("wnd[0]").sendVKey 0 'botão verde
+    session.findById("wnd[0]/tbar[0]/btn[11]").press 'botão de salvar
 
+
+    'session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/ctxtWA_SCREEN_0910-ARBPL_EMIT").caretPosition = 8
+    'session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
+    'session.findById("wnd[1]/usr/btnBUTTON_2").press 'salva o script
+        
     '--------------------------------------------------------------------------
   
     Exit Sub
