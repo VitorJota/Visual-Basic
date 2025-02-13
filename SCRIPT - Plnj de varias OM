@@ -1,0 +1,157 @@
+ Option Explicit
+ 
+    Public Appl, SapGuiAuto, Connection, session, WScript, Application
+
+'DÚVIDAS:
+'#tem como errar essa OM?
+'#o que tem como ERRAR?
+
+Sub Varias_OM()
+    
+    Dim plan As Worksheet
+    Dim UltimaLinha As Integer
+    Dim i As Integer
+    Dim w As Integer
+    Dim j As Integer
+    Dim q As Integer
+    
+    Dim Qnt_OM As Integer
+    Dim Qnt_PTS As Integer
+    
+    Dim GrupOM As String
+    Dim NumGrup As String
+    Dim TemPTS As String
+    Dim CentroEm As String
+    Dim Status As Integer
+    Dim Just As String
+    Dim Obsr As String
+    
+    Set plan = ThisWorkbook.Sheets("SCRIPT")
+    
+    If Not IsObject(Application) Then
+       Set SapGuiAuto = GetObject("SAPGUI")
+       Set Application = SapGuiAuto.GetScriptingEngine
+    End If
+    If Not IsObject(Connection) Then
+       Set Connection = Application.Children(0)
+    End If
+    If Not IsObject(session) Then
+       Set session = Connection.Children(0)
+    End If
+    If IsObject(WScript) Then
+       WScript.ConnectObject session, "on"
+       WScript.ConnectObject Application, "on"
+    End If
+    
+    GrupOM = plan.Cells(8, 5)
+    NumGrup = plan.Cells(8, 7)
+    TemPTS = plan.Cells(11, 5)
+    CentroEm = plan.Cells(11, 7)
+    Status = plan.Cells(14, 10)
+    Just = plan.Cells(17, 7) 'colocar limite de texto
+    Obsr = plan.Cells(23, 7)
+    Qnt_PTS = plan.Cells(13, 6)
+    
+     'nome da aba para esse código
+    UltimaLinha = plan.Cells(plan.Rows.Count, 2).End(xlUp).Row - 1
+    Qnt_OM = plan.Cells(4, 4).Value
+    
+    'For i = 1 To Qnt_OM 'repete o comando de planejar OM
+    
+        For w = 1 To Qnt_OM 'seleciona a próxima OM no EXCEL
+        
+            session.findById("wnd[0]").maximize
+            session.findById("wnd[0]/tbar[0]/okcd").Text = "/niw32"
+            session.findById("wnd[0]").sendVKey 0
+            
+            'colocar erro de saída
+            session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").Text = plan.Cells(w + 4, 3)
+            session.findById("wnd[0]").sendVKey 0
+    
+    
+            session.findById("wnd[0]/mbar/menu[3]/menu[0]/menu[0]").Select
+            session.findById("wnd[1]/usr/ctxtCAUFVD-PLNNR").Text = plan.Cells(8, 5)
+            
+            session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").Text = plan.Cells(8, 7)
+            session.findById("wnd[1]/usr/txtCAUFVD-PLNAL").SetFocus
+            session.findById("wnd[1]/tbar[0]/btn[0]").press
+            session.findById("wnd[2]/usr/btnSPOP-OPTION1").press
+            session.findById("wnd[2]/usr/btnSPOP-VAROPTION1").press
+
+            
+             'On Error GoTo ErroNotFound
+             
+'- - - - - - - - - - - - - - -
+'#Parte - 2
+'- - - - - - - - - - - - - - -
+
+            ' abre ampliação
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK").Select
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_MODE_ICON").press
+            session.findById("wnd[1]/tbar[0]/btn[6]").press
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/chkWA_TABLECTRL_0910-ACTIV[0,0]").SetFocus
+            
+            If TemPTS = "Não" Then
+            
+                session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/chkWA_TABLECTRL_0910-ACTIV[0,0]").Selected = True
+                session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").Text = Just
+                session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/cntlCC_TEXTBOX_0910/shellcont/shell").Text = Obsr 'campo de observação
+                session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").SetFocus
+                session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/txtWA_SCREEN_0910-PTSJUSTNEC").caretPosition = 14
+                  
+                GoTo PularPTS000
+                
+            End If
+            
+            '-------------------------------------------------
+          
+           
+            For i = 1 To Qnt_PTS  ' barra de rolagem
+            
+               session.findById("wnd[0]").maximize 'abre a aba
+               session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910").verticalScrollbar.Position = plan.Cells(13 + i, 6)  'vai até a PTS
+               session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/tblSAPLXWOCTC_PTS_0910/chkWA_TABLECTRL_0910-ACTIV[0,0]").Selected = True 'seleciona a pts
+               
+               'GoTo Pular
+            
+            Next i
+                     
+            
+            '-------------------------------------------------
+       
+PularPTS000:
+    
+        
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/ctxtWA_SCREEN_0910-ARBPL_EMIT").Text = CentroEm 'centro emitente
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/ctxtWA_SCREEN_0910-ARBPL_EMIT").SetFocus 'seleciona status
+            
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/subSUB_KOPF:SAPLCOIH:1102/btn%#AUTOTEXT001").press
+            session.findById("wnd[1]/usr/tblSAPLBSVATC_E/radJ_STMAINT-ANWS[0,1]").Selected = True
+            session.findById("wnd[1]/usr/tblSAPLBSVATC_E/radJ_STMAINT-ANWS[0,1]").SetFocus 'muda para "AGUARDANDO'
+                  
+                'Seleciona Status Secundário de acordo com o que o usuário marcar na planilha do Excel
+                
+            session.findById("wnd[1]/usr/tblSAPLBSVATC_EO").verticalScrollbar.Position = Status 'desce até a posição certa
+            session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = True 'marca o primeiro da lista
+            session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").SetFocus
+            session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = True
+            session.findById("wnd[1]/tbar[0]/btn[0]").press
+            
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabp+CUK/ssubSUB_AUFTRAG:SAPLCOIH:1180/ssubCUSTSCR1:SAPLXWOC:0900/tabsTABSTRIP/tabpZTS0/ssubSUB0:SAPLXWOC:0910/btnV_BTN_CONF_ICON").press
+            session.findById("wnd[1]/usr/btnBUTTON_2").press 'botão de confirmar alteração
+                
+            session.findById("wnd[0]/tbar[1]/btn[25]").press
+            session.findById("wnd[0]").sendVKey 0
+            session.findById("wnd[0]").sendVKey 0
+            session.findById("wnd[0]").sendVKey 0
+            session.findById("wnd[0]").sendVKey 0
+            session.findById("wnd[0]").sendVKey 0 'botão verde
+            session.findById("wnd[0]/tbar[0]/btn[11]").press 'botão de salvar
+                    
+           
+        Next w
+    
+    'Next i
+    
+    
+End Sub
