@@ -1,0 +1,210 @@
+   'variaveis publicas
+
+   Option Explicit
+ 
+    Public Appl, SapGuiAuto, Connection, session, WScript, Application
+   
+Sub PROGAMACAO()
+
+    Dim i As Integer
+    Dim j As Integer
+    Dim k As Integer
+    Dim p As Integer
+    Dim q As Integer
+    Dim NumOM As String
+    Dim Dhoje As String
+    Dim Dfim As String
+    Dim plan As Worksheet
+    Dim Dbase As String
+    Dim Dprog As Integer
+    Dim registro As String
+    Dim Ctrab As String
+    Dim Ccont As String
+    Dim Tbrev As String
+    Dim Ttrab As Integer
+    Dim Ncap As Integer
+    Dim Dnorm As Integer
+    Dim Qdias As Integer
+    Dim Qoms As Integer
+    
+    Set plan = ThisWorkbook.Sheets("SCRIPT")
+    NumOM = plan.Cells(5, 3)
+    Dhoje = plan.Cells(7, 2)
+    Dhoje = Format(Date, "dd.mm.yyyy")
+    Qoms = plan.Cells(7, 4) '(5,4)
+
+    
+    If Not IsObject(Application) Then
+       Set SapGuiAuto = GetObject("SAPGUI")
+       Set Application = SapGuiAuto.GetScriptingEngine
+    End If
+    If Not IsObject(Connection) Then
+       Set Connection = Application.Children(0)
+    End If
+    If Not IsObject(session) Then
+       Set session = Connection.Children(0)
+    End If
+    If IsObject(WScript) Then
+       WScript.ConnectObject session, "on"
+       WScript.ConnectObject Application, "on"
+    End If
+    
+    For k = 1 To Qoms
+        
+        Qdias = plan.Cells(k + 6, 6) '(5,6)
+        session.findById("wnd[0]").maximize
+        session.findById("wnd[0]/tbar[0]/okcd").Text = "/niw32" ' >Devo usar outro??
+        session.findById("wnd[0]").sendVKey 0
+        session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").Text = plan.Cells(k + 6, 3) ' >Número da OM '
+        session.findById("wnd[0]").sendVKey 0
+        
+        ' Status padrão
+        
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/subSUB_KOPF:SAPLCOIH:1102/btn%#AUTOTEXT001").press
+        session.findById("wnd[1]/usr/tblSAPLBSVATC_E/radJ_STMAINT-ANWS[0,2]").Selected = True ' seleciona "Em execução"
+        session.findById("wnd[1]/usr/tblSAPLBSVATC_E/radJ_STMAINT-ANWS[0,2]").SetFocus
+        session.findById("wnd[1]/tbar[0]/btn[0]").press
+        
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/subSUB_KOPF:SAPLCOIH:1102/btn%#AUTOTEXT001").press
+        session.findById("wnd[1]/usr/tblSAPLBSVATC_EO").verticalScrollbar.Position = 28 ' seleciona "Em preparação"
+        session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = True
+        session.findById("wnd[1]/tbar[0]/btn[0]").press
+        
+    
+        ' Retiro status
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/subSUB_KOPF:SAPLCOIH:1102/btn%#AUTOTEXT001").press
+        session.findById("wnd[1]/usr/tblSAPLBSVATC_EO").verticalScrollbar.Position = 10 ' agurdando progamação
+        If session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = True Then
+            
+            session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = False
+            session.findById("wnd[1]/tbar[0]/btn[0]").press
+        
+        End If
+        
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/subSUB_KOPF:SAPLCOIH:1102/btn%#AUTOTEXT001").press
+        session.findById("wnd[1]/usr/tblSAPLBSVATC_EO").verticalScrollbar.Position = 12 'reprogamação
+        If session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = True Then
+            
+            session.findById("wnd[1]/usr/tblSAPLBSVATC_EO/chkJ_STMAINT-ANWSO[0,0]").Selected = False
+            session.findById("wnd[1]/tbar[0]/btn[0]").press
+        
+        End If
+        session.findById("wnd[1]/tbar[0]/btn[0]").press
+        ' - - - - - - - - - - - - - - - - -
+        'Inserir Data FimBase
+        
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/ctxtCAUFVD-GLTRP").Text = plan.Cells(k + 6, 5) 'data fim
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/ctxtCAUFVD-GLTRP").SetFocus
+        
+        
+        ' Verificar Data
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/ctxtCAUFVD-GSTRP").SetFocus
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/ctxtCAUFVD-GSTRP").caretPosition = 10
+        Dbase = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/ctxtCAUFVD-GSTRP").Text
+        
+        If Dbase > Dhoje Then
+            
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/ctxtCAUFVD-GSTRP").Text = Dhoje
+            session.findById("wnd[0]").sendVKey 0
+            session.findById("wnd[0]").sendVKey 0
+            session.findById("wnd[0]").sendVKey 0
+        End If
+        
+        ' Tipo de Programação: Caixa de Seleção
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/subSUB_ADD:SAPLCOIH:7320/cmbCAUFVD-TERKZ").SetFocus
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/subSUB_ADD:SAPLCOIH:7320/cmbCAUFVD-TERKZ").Key = "3"
+        
+        On Error GoTo erronotfound
+erronotfound:
+        If "Apenas necs.capacidade" <> session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/subSUB_ADD:SAPLCOIH:7320/cmbCAUFVD-TERKZ").Text Then
+            
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpIHKZ/ssubSUB_AUFTRAG:SAPLCOIH:1120/subTERM:SAPLCOIH:7300/subSUB_ADD:SAPLCOIH:7320/cmbCAUFVD-TERKZ").Key = "3"
+        
+        End If
+        
+        session.findById("wnd[0]").sendVKey 0
+        session.findById("wnd[0]").sendVKey 0
+        session.findById("wnd[0]").sendVKey 0
+        session.findById("wnd[0]").sendVKey 0
+        
+        
+        ' Adicionar linhas de PM01
+        session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1100/tabsTS_1100/tabpVGUE").Select
+    
+        
+        'Achar PM01
+        For i = 1 To 1000
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-STEUS[4,0]").SetFocus
+            If "PM01" = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-STEUS[4,0]").Text Then
+                
+                'For j = 1 To 7
+                
+                    Ctrab = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-ARBPL[2,0]").Text
+                    Ccont = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-STEUS[4,0]").Text
+                    Tbrev = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-LTXA1[7,0]").Text
+                    Ttrab = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-ARBEI[10,0]").Text '= "1"
+                    Ncap = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-ANZZL[12,0]").Text '= "23"
+                    Dnorm = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-DAUNO[13,0]").Text '= "7"
+                    
+                
+                'Next j
+                GoTo PularColar:
+                
+            End If
+            ' Descer de linha
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-STEUS[4,0]").caretPosition = i
+        
+        Next i
+    
+PularColar:
+        'Achar vazio
+        If Qdias = 0 Then
+        
+            GoTo SalvaOM
+        
+        End If
+        
+        For p = 1 To 1000
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-VSTTXT[35,1]").SetFocus
+            If "" = session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-VSTTXT[35,1]").Text Then
+                    
+                For q = 1 To Qdias
+                        
+                    registro = plan.Cells(7, q + 6) 'G7// era "5"// pega o dia
+                    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-ARBPL[2," & CStr(q) & "]").Text = Ctrab
+                    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-STEUS[4," & CStr(q) & "]").Text = Ccont
+                    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-LTXA1[7," & CStr(q) & "]").Text = Tbrev
+                    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-ARBEI[10," & CStr(q) & "]").Text = Ttrab
+                    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-ANZZL[12," & CStr(q) & "]").Text = Ncap
+                    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/txtAFVGD-DAUNO[13," & CStr(q) & "]").Text = Dnorm
+                    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-NTANF[16," & CStr(q) & "]").Text = registro
+                    session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010/ctxtAFVGD-NTEND[70," & CStr(q) & "]").Text = registro
+                    session.findById("wnd[0]").sendVKey 0
+                    session.findById("wnd[0]").sendVKey 0
+                    session.findById("wnd[0]").sendVKey 0
+                    session.findById("wnd[0]").sendVKey 0
+                    session.findById("wnd[0]").sendVKey 0
+                        
+                Next q
+                
+                GoTo SalvaOM
+            
+            End If
+                
+            session.findById("wnd[0]/usr/subSUB_ALL:SAPLCOIH:3001/ssubSUB_LEVEL:SAPLCOIH:1101/tabsTS_1100/tabpVGUE/ssubSUB_AUFTRAG:SAPLCOVG:3010/tblSAPLCOVGTCTRL_3010").verticalScrollbar.Position = p
+    
+        Next p
+        
+SalvaOM:
+        session.findById("wnd[0]").sendVKey 0
+            
+        session.findById("wnd[0]/tbar[0]/btn[11]").press
+        session.findById("wnd[0]/tbar[0]/btn[11]").press
+        session.findById("wnd[0]/tbar[0]/btn[11]").press
+        session.findById("wnd[0]/tbar[0]/btn[11]").press
+        session.findById("wnd[0]/tbar[0]/btn[11]").press
+    'CLICA EM SALVAR
+            
+    Next k
+     
+End Sub
