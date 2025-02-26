@@ -1,0 +1,24 @@
+Sub ExtractEmails()
+    Dim ws As Worksheet
+    Dim cell As Range
+    Dim startPos As Long
+    Dim endPos As Long
+    Dim email As String
+    Dim result As String
+    Dim outputCell As Range
+    
+    ' Definir a planilha ativa
+    Set ws = ThisWorkbook.Sheets("BD_Notas e Ordens_Carteira_Dire") ' Altere "Sheet1" para o nome da sua planilha
+    
+    ' Percorrer cada célula na coluna T (altere conforme necessário)
+    For Each cell In ws.Range("T1:T" & ws.Cells(ws.Rows.Count, "T").End(xlUp).Row)
+        If InStr(cell.Value, "@") > 0 Then
+            startPos = InStrRev(cell.Value, " ", InStr(cell.Value, "@")) + 1
+            endPos = InStr(InStr(cell.Value, "@"), cell.Value, " ") - 1
+            If endPos = -1 Then endPos = Len(cell.Value)
+            email = Mid(cell.Value, startPos, endPos - startPos + 1)
+            ' Escrever o e-mail na célula ao lado (coluna U)
+            cell.Offset(0, 1).Value = email
+        End If
+    Next cell
+End Sub
