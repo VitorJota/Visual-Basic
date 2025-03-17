@@ -1,0 +1,41 @@
+
+Sub Selecao_OK()
+
+    ' Definir planilha
+    Dim plan As Worksheet
+    Set plan = ThisWorkbook.Sheets("fConsulta - Vale Forms")
+        'Abrindo Sap
+    Dim TotalCt As Integer
+    Dim TotalOk As Integer
+    Dim Comeco As Integer
+    Dim Fim As Integer
+    Dim i As Integer
+    TotalCt = plan.Cells(3, 17)
+    TotalOk = plan.Cells(3, 18)
+    Fim = (TotalCt - TotalOk) + TotalOk
+        
+    Range("n2").Select
+    Selection.End(xlDown).Select
+    Selection.End(xlDown).Select
+    Selection.End(xlUp).Select
+    'TotalCentroTrab = plan.Cells(2, 16)
+    ActiveCell.Offset(1, 0).Select
+    Comeco = TotalOk - 1
+    
+    'ActiveSheet.Paste
+    
+    For i = TotalOk To (Fim - 1)
+               
+        plan.Cells(1 + i, 14).Value = "Ok"
+        plan.Cells(1 + i, 6).Value = "Ok"
+        plan.Cells(1 + i, 8).Value = "Ok"
+        plan.Cells(1 + i, 7).Value = "Ok"
+        
+    
+    Next i
+    
+
+
+
+
+End Sub
