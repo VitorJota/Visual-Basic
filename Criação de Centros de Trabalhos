@@ -1,0 +1,91 @@
+
+      'variaveis publicas
+
+   Option Explicit
+ 
+    Public Appl, SapGuiAuto, Connection, session, WScript, Application
+'VERSÃO 2
+
+Sub CENTRO_TRABALHO()
+
+    ' Definir planilha
+    Dim plan As Worksheet
+    Set plan = ThisWorkbook.Sheets("fConsulta - Vale Forms")
+    
+    'Abrindo Sap
+    If Not IsObject(Application) Then
+       Set SapGuiAuto = GetObject("SAPGUI")
+       Set Application = SapGuiAuto.GetScriptingEngine
+    End If
+    If Not IsObject(Connection) Then
+       Set Connection = Application.Children(0)
+    End If
+    If Not IsObject(session) Then
+       Set session = Connection.Children(0)
+    End If
+    If IsObject(WScript) Then
+       WScript.ConnectObject session, "on"
+       WScript.ConnectObject Application, "on"
+    End If
+    
+    
+    Dim TotalCt As Integer
+    Dim TotalOk As Integer
+    Dim Comeco As Integer
+    Dim Fim As Integer
+    Dim i As Integer
+    TotalCt = plan.Cells(3, 17)
+    TotalOk = plan.Cells(3, 18)
+    Fim = (TotalCt - TotalOk) + TotalOk
+        
+    Range("n2").Select
+    Selection.End(xlDown).Select
+    Selection.End(xlDown).Select
+    Selection.End(xlUp).Select
+    'TotalCentroTrab = plan.Cells(2, 16)
+    ActiveCell.Offset(1, 0).Select
+    Comeco = TotalOk - 1
+    
+    'ActiveSheet.Paste
+    
+    For i = TotalOk To (Fim - 1)
+    
+        
+        session.findById("wnd[0]").maximize
+        session.findById("wnd[0]/tbar[0]/okcd").Text = "/nir02"
+        session.findById("wnd[0]").sendVKey 0
+        
+    
+        session.findById("wnd[0]/usr/ctxtRC68A-WERKS").Text = "4054" ' Trava
+        session.findById("wnd[0]/usr/ctxtRC68A-ARBPL").Text = plan.Cells(1 + i, 6)
+        session.findById("wnd[0]/usr/ctxtRC68A-ARBPL").SetFocus
+        session.findById("wnd[0]/usr/ctxtRC68A-ARBPL").caretPosition = 6
+        session.findById("wnd[0]").sendVKey 0
+        
+        session.findById("wnd[0]").sendVKey 0
+        session.findById("wnd[1]/usr/btnBTNOK").press
+        session.findById("wnd[0]/usr/tabsTAXI_TABSTRIP_OVERVIEW/tabpKAUE").Select
+        session.findById("wnd[0]/usr/tabsTAXI_TABSTRIP_OVERVIEW/tabpKAUE/ssubSUBSCREEN_BODY:SAPLCRA0:0306/subSUBSCREEN_BUTTONS:SAPLCRA0:5006/btnKAKO").press
+        session.findById("wnd[0]/tbar[1]/btn[24]").press
+        session.findById("wnd[0]/tbar[1]/btn[5]").press
+        
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/ctxtKAZA-DATUV[0,0]").Text = plan.Cells(1 + i, 4) 'Início da Semana
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/ctxtKAZA-DATUB[1,0]").Text = plan.Cells(1 + i, 5) 'Fim a Semana
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZTG[4,0]").Text = "7" 'Quantidade de dias da semana
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZTG[4,0]").SetFocus
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZTG[4,0]").caretPosition = 1
+        session.findById("wnd[0]").sendVKey 0
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,1]").Text = plan.Cells(1 + i, 7) 'Segunda
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,2]").Text = plan.Cells(1 + i, 8) 'Terça
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,3]").Text = plan.Cells(1 + i, 9) 'Quarta
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,4]").Text = plan.Cells(1 + i, 10) 'Quinta
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,5]").Text = plan.Cells(1 + i, 11) 'Sexta
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,6]").Text = plan.Cells(1 + i, 12) 'Sábado
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,7]").Text = plan.Cells(1 + i, 13) 'Domingo
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,7]").SetFocus
+        session.findById("wnd[0]/usr/tblSAPLCRK0TC116/txtKAZA-ANZHL[12,7]").caretPosition = 1
+        session.findById("wnd[0]/tbar[0]/btn[11]").press
+        plan.Cells(1 + i, 7).Value = "Ok"
+        
+    
+    Next i
