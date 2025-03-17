@@ -1,0 +1,38 @@
+Sub ExtractEmails()
+    Dim ws As Worksheet
+    Dim cell As Range
+    Dim startPos As Long
+    Dim endPos As Long
+    Dim email As String
+    Dim result As String
+    Dim outputCell As Range
+    Dim extractedValue As String
+    Dim totalOM As Long
+    ' Definir a planilha ativa
+    Set ws = ThisWorkbook.Sheets("Script") ' Altere "Sheet1" para o nome da sua planilha
+    totalOM = ws.Cells(3, 11)
+    
+    ' Percorrer cada célula na coluna T (altere conforme necessário)
+    For Each cell In ws.Range("B2:B" & totalOM)
+        If InStr(cell.Value, "@") > 0 Then
+            startPos = InStrRev(cell.Value, " ", InStr(cell.Value, "@")) + 1
+            endPos = InStr(InStr(cell.Value, "@"), cell.Value, " ") - 1
+            If endPos = -1 Then endPos = Len(cell.Value)
+            email = Mid(cell.Value, startPos, endPos - startPos + 1)
+            ' Escrever o e-mail na célula ao lado (coluna U)
+            cell.Offset(0, 1).Value = email
+        End If
+
+        ' Verificar se há "ValeFormsId:" na célula
+        If InStr(cell.Value, "ValeFormsId:") > 0 Then
+            ' Determinar a posição inicial e final do valor
+            startPos = InStr(cell.Value, "ValeFormsId:") + Len("ValeFormsId:")
+            endPos = InStr(startPos, cell.Value, ".")
+            If endPos > 0 Then
+                extractedValue = Mid(cell.Value, startPos, endPos - startPos)
+                ' Escrever o valor extraído na célula ao lado (coluna D)
+                cell.Offset(0, 2).Value = extractedValue
+            End If
+        End If
+    Next cell
+End Sub
