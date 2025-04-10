@@ -9,7 +9,7 @@ Function VerificarCelulasVazias(sht As Worksheet, celulas As Variant) As Boolean
     For Each celula In celulas
         If sht.Range(celula).Value = "" Then
             sht.Range(celula).Interior.Color = RGB(255, 192, 203)
-            MsgBox "A cÈlula " & celula & " est· vazia."
+            MsgBox "A c√©lula " & celula & " est√° vazia."
             celulaVazia = True
         End If
         
