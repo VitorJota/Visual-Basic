@@ -49,6 +49,11 @@ Glossário
     iHoras = Format(wsOrigem.Cells(i, 6), "hh:mm:ss")
     fHoras = Format(wsOrigem.Cells(i, 8), "hh:mm:ss")
 
-'6) 
+'6) Andar verticalmente
+    linha = k + 6
+    Set intervalo = plan.Rows(linha)
+    Qdias = 0
+    Qdias = WorksheetFunction.CountA(intervalo) - 2 ' Quantidade de dias para serem promagos >> caminha verticalmente
+        
                   
 
