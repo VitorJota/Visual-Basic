@@ -1,0 +1,54 @@
+Glossário
+' 1)  Descer linha
+
+
+
+' 2) Atrasar código
+  
+  Dim startTime As Single
+  startTime = Timer ' hora inicial em segundos
+  Do While Timer < startTime + 10
+    DoEvents ' permite que o Excel continue responsivo
+  Loop
+
+' 3) Salvar em array
+
+    Dim ultimaLinha As Long
+    Dim contador As Long
+    Dim destinoLinha As Long
+    Dim linhas() As Range
+    Dim wsOrigem As Worksheet, wsDestino As Worksheet
+
+    Set wsOrigem = ThisWorkbook.Sheets("SCRIPT") ' Substitua pelo nome da sua planilha de origem
+    Set wsDestino = ThisWorkbook.Sheets("bdExecutados") ' Substitua pelo nome da sua planilha de destino
+
+    ' - - - - - - - - -
+    ' Dentro do for/if colentando os dados que queira guardar no array(linhas)
+    ReDim Preserve linhas(contador) ' salva em array
+    Set linhas(contador) = wsOrigem.Rows(i)
+    contador = contador + 1
+
+    ' - - - - - - - - -
+    ' Cola na planilha local
+    destinoLinha = plan.Cells(wsDestino.Rows.Count, "a").End(xlUp).Row - 1
+    For i = LBound(linhas) To UBound(linhas)
+        linhas(i).Copy wsDestino.Rows(destinoLinha) ' cola na planilha destino
+        destinoLinha = destinoLinha + 1
+    Next i
+    ' - - - - - - - - -
+
+' 4) Conta valores de colunas: Caso tenha uma tabela ele conta os espaços alocados na tabela, mesmo que não tenha nada.
+    Dim uTotalOK As Long
+    uTotalCT = 0
+    uTotalCT = plan.Cells(plan.Rows.Count, "C").End(xlUp).Row - 1
+
+' 5) Formato "hh:mm:ss" de Horas
+
+    Dim iHoras As String
+    Dim fHoras As String
+    iHoras = Format(wsOrigem.Cells(i, 6), "hh:mm:ss")
+    fHoras = Format(wsOrigem.Cells(i, 8), "hh:mm:ss")
+
+'6) 
+                  
+
