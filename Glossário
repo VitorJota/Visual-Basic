@@ -54,6 +54,19 @@ Glossário
     Set intervalo = plan.Rows(linha)
     Qdias = 0
     Qdias = WorksheetFunction.CountA(intervalo) - 2 ' Quantidade de dias para serem promagos >> caminha verticalmente
+
+
+'7) 
+    ' Total coluna preenchida na linha 2, a partir da coluna E
+    ultimaColuna = wsDados.Cells(1, wsDados.Columns.Count).End(xlToLeft).Column
+    
+    ' Converter o número da coluna para a letra correspondente
+    letraColuna = Split(wsDados.Cells(1, ultimaColuna).Address, "$")(1)
+    
+    ' Preenchida dinamicamente de H2 em diante
+    Set rangeDestino = wsDados.Range("H2:" & letraColuna & "2")
+    wsDados.Range("H2").AutoFill Destination:=rangeDestino, Type:=xlFillDefault
+
         
                   
 
