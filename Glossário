@@ -1,33 +1,29 @@
 Glossário
-' 1)  Descer linha
-
-
+' 1)  Conectar página
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("SCRIPT") 
 
 ' 2) Atrasar código
-  
   Dim startTime As Single
   startTime = Timer ' hora inicial em segundos
+
   Do While Timer < startTime + 10
     DoEvents ' permite que o Excel continue responsivo
   Loop
 
 ' 3) Salvar em array
-
     Dim ultimaLinha As Long
     Dim contador As Long
     Dim destinoLinha As Long
     Dim linhas() As Range
-    Dim wsOrigem As Worksheet, wsDestino As Worksheet
-
-    Set wsOrigem = ThisWorkbook.Sheets("SCRIPT") ' Substitua pelo nome da sua planilha de origem
+    Dim ws As Worksheet, wsDestino As Worksheet
+    Set ws = ThisWorkbook.Sheets("SCRIPT") ' Substitua pelo nome da sua planilha de origem
     Set wsDestino = ThisWorkbook.Sheets("bdExecutados") ' Substitua pelo nome da sua planilha de destino
-
     ' - - - - - - - - -
     ' Dentro do for/if colentando os dados que queira guardar no array(linhas)
     ReDim Preserve linhas(contador) ' salva em array
     Set linhas(contador) = wsOrigem.Rows(i)
     contador = contador + 1
-
     ' - - - - - - - - -
     ' Cola na planilha local
     destinoLinha = plan.Cells(wsDestino.Rows.Count, "a").End(xlUp).Row - 1
@@ -40,24 +36,22 @@ Glossário
 ' 4) Conta valores de colunas: Caso tenha uma tabela ele conta os espaços alocados na tabela, mesmo que não tenha nada.
     Dim uTotalOK As Long
     uTotalCT = 0
-    uTotalCT = plan.Cells(plan.Rows.Count, "C").End(xlUp).Row - 1
+    Dim ultimaLinha as interger
+    ultimaLinha = ws.Cells(ws.Rows.Count, "C").End(xlUp).Row - 1
 
 ' 5) Formato "hh:mm:ss" de Horas
-
-    Dim iHoras As String
-    Dim fHoras As String
-    iHoras = Format(wsOrigem.Cells(i, 6), "hh:mm:ss")
-    fHoras = Format(wsOrigem.Cells(i, 8), "hh:mm:ss")
+    Dim horasInicio As String
+    Dim horasFim As String
+    horasInicio = Format(wsOrigem.Cells(i, 6), "hh:mm:ss")
+    horasFim = Format(wsOrigem.Cells(i, 8), "hh:mm:ss")
 
 '6) Andar verticalmente
     linha = k + 6
     Set intervalo = plan.Rows(linha)
-    Qdias = 0
-    Qdias = WorksheetFunction.CountA(intervalo) - 2 ' Quantidade de dias para serem promagos >> caminha verticalmente
+    quantidadeDeDias = 0
+    quantidadeDeDias = WorksheetFunction.CountA(intervalo) - 2 ' Quantidade de dias para serem promagos >> caminha verticalmente
 
-
-'7) 
-    ' Total coluna preenchida na linha 2, a partir da coluna E
+'7) Total coluna preenchida na linha 2, a partir da coluna E
     ultimaColuna = wsDados.Cells(1, wsDados.Columns.Count).End(xlToLeft).Column
     
     ' Converter o número da coluna para a letra correspondente
