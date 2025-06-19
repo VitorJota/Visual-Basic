@@ -39,9 +39,5 @@ Olá! 👋 Venho me especializando em automação de processos, com atuação no
 
 Este portfólio reflete meu compromisso com a automação, eficiência e qualidade no desenvolvimento de soluções que impactam diretamente os processos e resultados das equipes e empresas. Sempre busco inovar e aprimorar meus conhecimentos para atender às necessidades dos clientes.
 
----
-
-Se precisar de mais alguma alteração, é só avisar! 😊
-
 
 
