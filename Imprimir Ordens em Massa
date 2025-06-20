@@ -1,0 +1,149 @@
+Option Explicit
+
+Public Appl, SapGuiAuto, Connection, session, WScript 'Application, SapGuiAuto, Connection, session, WScript'
+
+Sub impressao01()
+    
+    If Not IsObject(Appl) Then
+       Set SapGuiAuto = GetObject("SAPGUI")
+       Set Appl = SapGuiAuto.GetScriptingEngine
+    End If
+    If Not IsObject(Connection) Then
+        Set Connection = Appl.Children(0)
+    End If
+    If Not IsObject(session) Then
+       Set session = Connection.Children(0)
+    End If
+    If IsObject(WScript) Then
+       WScript.ConnectObject session, "on"
+       WScript.ConnectObject Application, "on"
+    End If
+    
+    Dim i As Integer
+    Dim tamanho As Integer
+    Dim om As String
+    
+    Dim janela01 As String
+    Dim janela02 As String
+    
+    Dim ws As Worksheet
+    Dim senha As String
+    Dim pasta As String
+    Dim ordem As String
+    Dim arquivo As String
+    
+    
+    
+    pasta = ThisWorkbook.Sheets(1).Name
+    Set ws = ThisWorkbook.Sheets(pasta) ' Substitua pelo nome da sua planilha
+    Dim ultimaLinha As Integer
+    ultimaLinha = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    
+    For i = 1 To ultimaLinha
+        Cells(i + 1, 1).Interior.Color = RGB(255, 255, 255)
+        Cells(i + 1, 2) = ""
+    Next i
+    
+    For i = 1 To ultimaLinha
+        
+        ordem = ws.Cells(i + 1, 1)
+        arquivo = ws.Cells(i + 1, 1)
+        janela01 = "Imprimir"
+        janela01 = "Imprimir"
+        janela02 = "Salvar Saída de Impressão como"
+        
+        '-----------------------------
+        ' Parte 1 - SAP
+        ' Arquivo para executar janelas
+        '-----------------------------
+        
+        Application.Wait Now + TimeValue("00:00:03")
+        Call CriarVBS(arquivo, janela01, janela02)
+        
+        Dim wshell As Object
+        Set wshell = CreateObject("Wscript.Shell")
+        wshell.Run ThisWorkbook.Path & "\FileOpen.vbs", 1, False
+        
+        Dim wshell02 As Object
+        Set wshell02 = CreateObject("Wscript.Shell")
+        wshell02.Run ThisWorkbook.Path & "\FileOpen02.vbs", 1, False
+        
+        '-----------------------------
+        ' Parte 1 - SAP
+        ' Executando transação no SAP
+        '-----------------------------
+        
+        session.findById("wnd[0]/tbar[0]/okcd").Text = "/niw32"
+        session.findById("wnd[0]").sendVKey 0
+        
+        ' Copia número da OM
+        Sheets("Planilha1").Select
+        Range("A" & i + 1).Select
+        Selection.Copy
+        
+        ' Abre impressão
+        session.findById("wnd[0]/usr/ctxtCAUFVD-AUFNR").Text = ws.Cells(i + 1, 1)
+        session.findById("wnd[0]").sendVKey 0
+        session.findById("wnd[0]/tbar[0]/btn[86]").press
+        
+        Application.Wait Now + TimeValue("00:00:05")
+        Application.Wait Now + TimeValue("00:00:05")
+        Cells(i + 1, 2).Value = session.findById("wnd[0]/sbar").Text
+        Cells(i + 1, 1).Interior.Color = RGB(193, 240, 200)
+    Next i
+    
+    
+End Sub
+
+
+Public Sub CriarVBS(ByVal strCaminho As String, ByVal strNomeJanela01 As String, ByVal strNomeJanela02 As String)
+    
+    Dim myfso As Scripting.filesystemobject
+    Dim mytxt As Scripting.textstream
+    Dim myfso02 As Scripting.filesystemobject
+    Dim mytxt02 As Scripting.textstream
+    
+    Set myfso = CreateObject("scripting.filesystemobject")
+    Set mytxt = myfso.CreateTextFile(Filename:=ThisWorkbook.Path & "\FileOpen.vbs", overwrite:=True)
+    
+    Set myfso02 = CreateObject("scripting.filesystemobject")
+    Set mytxt02 = myfso.CreateTextFile(Filename:=ThisWorkbook.Path & "\FileOpen02.vbs", overwrite:=True)
+    
+    With mytxt
+        .write "set Wshell = createObject(""WScript.Shell"")" & vbCrLf
+        .write "do" & vbCrLf
+        .write "bWindowFound = Wshell.appactivate(""" & strNomeJanela01 & """)" & vbCrLf
+        .write "WScript.sleep 1000" & vbCrLf
+        .write "Loop Until bWindowFound" & vbCrLf
+        .write "bWindowFound = Wshell.appactivate(""" & strNomeJanela01 & """)" & vbCrLf
+        .write "if (bWindowFound) then" & vbCrLf
+        .write "Wshell.appactivate """ & strNomeJanela01 & """" & vbCrLf
+        .write "WScript.sleep 100" & vbCrLf
+        .write "Wshell.sendkeys ""{ENTER}""" & vbCrLf
+        .write "WScript.sleep 100" & vbCrLf
+        .write "End If"
+        .Close
+    End With
+    
+    With mytxt02
+        .write "set Wshell = createObject(""WScript.Shell"")" & vbCrLf
+        .write "do" & vbCrLf
+        .write "bWindowFound = Wshell.appactivate(""" & strNomeJanela02 & """)" & vbCrLf
+        .write "WScript.sleep 1000" & vbCrLf
+        .write "Loop Until bWindowFound" & vbCrLf
+        .write "bWindowFound = Wshell.appactivate(""" & strNomeJanela02 & """)" & vbCrLf
+        .write "if (bWindowFound) then" & vbCrLf
+        .write "Wshell.appactivate """ & strNomeJanela02 & """" & vbCrLf
+        .write "WScript.sleep 100" & vbCrLf
+        .write "Wshell.sendkeys """ & "" & "%n" & strCaminho & """" & vbCrLf
+        .write "WScript.sleep 100" & vbCrLf
+        .write "Wshell.sendkeys ""{ENTER}""" & vbCrLf
+        .write "WScript.sleep 100" & vbCrLf
+        .write "End If"
+        .Close
+    End With
+    Set myfso = Nothing
+    Set mytxt = othing
+
+End Sub
+
