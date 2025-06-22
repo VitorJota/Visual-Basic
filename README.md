@@ -1,6 +1,6 @@
 ### **Descrição Pessoal**
 
-Olá! 👋 Venho me especializando em automação de processos, com atuação no desenvolvimento de soluções em VBA e integração com sistemas como o SAP. Meu objetivo é transformar tarefas manuais e repetitivas em processos rápidos, eficientes e confiáveis.
+Olá! Venho me especializando em automação de processos, com atuação no desenvolvimento de soluções em VBA e integração com sistemas como o SAP. Meu objetivo é transformar tarefas manuais e repetitivas em processos rápidos, eficientes e confiáveis.
 
 ---
 
@@ -38,6 +38,9 @@ Olá! 👋 Venho me especializando em automação de processos, com atuação no
 ### **Conclusão**
 
 Este portfólio reflete meu compromisso com a automação, eficiência e qualidade no desenvolvimento de soluções que impactam diretamente os processos e resultados das equipes e empresas. Sempre busco inovar e aprimorar meus conhecimentos para atender às necessidades dos clientes.
+
+#SAP PM, #SAP, #Excel, #Macros Excel, #VBA
+
 
 
 
