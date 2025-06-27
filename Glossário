@@ -2,6 +2,7 @@ Glossário
 ' 1)  Conectar página
     Dim ws As Worksheet
     Set ws = ThisWorkbook.Sheets("SCRIPT") 
+    ultimaLinha = ws.Cells(ws.Rows.Count, "C").End(xlUp).Row
 
 ' 2) Atrasar código
   Dim startTime As Single
